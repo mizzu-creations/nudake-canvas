@@ -1,6 +1,7 @@
+import { getDistance, getAngle } from "./utils.js";
+
 const guideTxt = document.querySelector(".guide");
 
-const canvasParent = document.querySelector(".nudake");
 const canvas = document.querySelector(".nudake canvas");
 const ctx = canvas.getContext("2d");
 const imgs = Array.from(
@@ -10,6 +11,7 @@ const imgs = Array.from(
 
 let canvasWidth, canvasHeight;
 let currentIdx = 0;
+let prevPos = { x: 0, y: 0 };
 
 function init() {
   canvasWidth = innerWidth;
@@ -32,10 +34,11 @@ function drawImg() {
   };
 }
 
-function onMouseDown() {
+function onMouseDown(e) {
   console.log("down");
   window.addEventListener("mouseup", onMouseUp);
   window.addEventListener("mousemove", onMouseMove);
+  prevPos = { x: e.clientX, y: e.clientY };
 }
 function onMouseUp() {
   console.log("up");
@@ -49,11 +52,22 @@ function onMouseMove(e) {
 }
 
 function drawCircles(e) {
-  ctx.globalCompositeOperation = "destination-out";
-  ctx.beginPath();
-  ctx.arc(e.clientX, e.clientY, 50, 0, Math.PI * 2);
-  ctx.fill();
-  ctx.closePath();
+  const nextPos = { x: e.clientX, y: e.clientY };
+  const dist = getDistance(prevPos, nextPos);
+  const angle = getAngle(prevPos, nextPos);
+
+  for (let i = 0; i < dist; i++) {
+    const x = prevPos.x + Math.cos(angle) * i;
+    const y = prevPos.y + Math.sin(angle) * i;
+
+    ctx.globalCompositeOperation = "destination-out";
+    ctx.beginPath();
+    ctx.arc(x, y, 50, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.closePath();
+  }
+
+  prevPos = nextPos;
 }
 
 function render() {
