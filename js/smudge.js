@@ -1,9 +1,9 @@
-import { getDistance, getAngle } from "./utils.js";
+import { getDistance, getAngle, getScrupedPercent } from "./utils.js";
 
 const guideTxt = document.querySelector(".guide");
 
 const canvas = document.querySelector(".nudake canvas");
-const ctx = canvas.getContext("2d");
+const ctx = canvas.getContext("2d", { willReadFrequently: true });
 const imgs = Array.from(
   { length: 8 },
   (_, i) => `./images/canvas/${i + 1}.jpg`
@@ -35,19 +35,17 @@ function drawImg() {
 }
 
 function onMouseDown(e) {
-  console.log("down");
   window.addEventListener("mouseup", onMouseUp);
   window.addEventListener("mousemove", onMouseMove);
   prevPos = { x: e.clientX, y: e.clientY };
 }
 function onMouseUp() {
-  console.log("up");
   window.removeEventListener("mouseup", onMouseUp);
   window.removeEventListener("mousemove", onMouseMove);
 }
 function onMouseMove(e) {
-  console.log("move");
   drawCircles(e);
+  checkPercent();
   guideTxt.style.opacity = "0";
 }
 
@@ -69,6 +67,9 @@ function drawCircles(e) {
 
   prevPos = nextPos;
 }
+const checkPercent = _.throttle(() => {
+  const percent = getScrupedPercent(ctx, canvasWidth, canvasHeight);
+}, 500);
 
 function render() {
   requestAnimationFrame(render);

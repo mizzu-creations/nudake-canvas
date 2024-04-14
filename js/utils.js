@@ -12,4 +12,17 @@ function getAngle(p1, p2) {
   return Math.atan2(dy, dx);
 }
 
-export { getDistance, getAngle };
+function getScrupedPercent(ctx, width, height) {
+  const pixels = ctx.getImageData(0, 0, width, height);
+  const gap = 32;
+  const total = pixels.data.length / gap;
+  let count = 0;
+
+  for (let i = 0; i < pixels.data.length - 3; i += gap) {
+    if (pixels.data[i + 3] === 0) count++;
+  }
+
+  return Math.round((count / total) * 100);
+}
+
+export { getDistance, getAngle, getScrupedPercent };
