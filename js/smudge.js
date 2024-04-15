@@ -6,6 +6,7 @@ import {
 } from "./utils.js";
 
 const guideTxt = document.querySelector(".guide");
+const guideDim = document.querySelector(".dim");
 
 const canvasParent = document.querySelector(".nudake");
 const canvas = document.querySelector(".nudake canvas");
@@ -14,8 +15,6 @@ const imgs = Array.from(
   { length: 8 },
   (_, i) => `./images/canvas/${i + 1}.jpg`
 ).sort(() => Math.random() - 0.5);
-
-console.log(imgs);
 
 const loadedImgs = [];
 
@@ -84,7 +83,8 @@ function onMouseMove(e) {
   if (isChanging) return;
   drawCircles(e);
   checkPercent();
-  guideTxt.style.opacity = "0";
+  gsap.to(guideTxt, { opacity: 0, duration: 1 });
+  gsap.to(guideDim, { opacity: 0, duration: 1 });
 }
 
 function drawCircles(e) {
@@ -150,7 +150,7 @@ window.addEventListener("load", () => {
       opacity: 0,
       duration: 0.5,
       onComplete: () => {
-        guideTxt.style.opacity = 1;
+        gsap.to(guideTxt, { opacity: 1, duration: 1 });
       },
     });
     render();
