@@ -13,7 +13,10 @@ const ctx = canvas.getContext("2d", { willReadFrequently: true });
 const imgs = Array.from(
   { length: 8 },
   (_, i) => `./images/canvas/${i + 1}.jpg`
-);
+).sort(() => Math.random() - 0.5);
+
+console.log(imgs);
+
 const loadedImgs = [];
 
 let canvasWidth, canvasHeight;
