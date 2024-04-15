@@ -19,6 +19,7 @@ const loadedImgs = [];
 let canvasWidth, canvasHeight;
 let currentIdx = 0;
 let prevPos = { x: 0, y: 0 };
+let isChanging = false;
 
 function init() {
   canvasWidth = innerWidth;
@@ -27,7 +28,6 @@ function init() {
   canvas.height = canvasHeight;
   canvas.style.width = `${canvasWidth}px`;
   canvas.style.height = `${canvasHeight}px`;
-
   preloadImages().then(() => drawImg());
 }
 
@@ -47,17 +47,29 @@ function preloadImages() {
 }
 
 function drawImg() {
-  ctx.clearRect(0, 0, canvasWidth, canvasHeight);
+  isChanging = true;
   const img = loadedImgs[currentIdx];
+  const firstDrawing = ctx.globalCompositeOperation === "source-over";
 
-  ctx.globalCompositeOperation = "source-over";
-  drawImageCenter(canvas, ctx, img);
+  gsap.to(canvas, {
+    opacity: 0,
+    duration: firstDrawing ? 0 : 1,
+    onComplete: () => {
+      canvas.style.opacity = 1;
+      ctx.globalCompositeOperation = "source-over";
+      drawImageCenter(canvas, ctx, img);
 
-  const nextImage = imgs[(currentIdx + 1) % imgs.length];
-  canvasParent.style.backgroundImage = `url(${nextImage})`;
+      const nextImage = imgs[(currentIdx + 1) % imgs.length];
+      canvasParent.style.backgroundImage = `url(${nextImage})`;
+      prevPos = null;
+
+      isChanging = false;
+    },
+  });
 }
 
 function onMouseDown(e) {
+  if (isChanging) return;
   window.addEventListener("mouseup", onMouseUp);
   window.addEventListener("mousemove", onMouseMove);
   prevPos = { x: e.clientX, y: e.clientY };
@@ -67,6 +79,7 @@ function onMouseUp() {
   window.removeEventListener("mousemove", onMouseMove);
 }
 function onMouseMove(e) {
+  if (isChanging) return;
   drawCircles(e);
   checkPercent();
   guideTxt.style.opacity = "0";
@@ -74,6 +87,7 @@ function onMouseMove(e) {
 
 function drawCircles(e) {
   const nextPos = { x: e.clientX, y: e.clientY };
+  if (!prevPos) prevPos = nextPos;
   const dist = getDistance(prevPos, nextPos);
   const angle = getAngle(prevPos, nextPos);
 
