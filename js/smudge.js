@@ -4,9 +4,11 @@ import {
   getScrupedPercent,
   drawImageCenter,
 } from "./utils.js";
+import { guideAnimation } from "./guideAnimation.js";
 
 const guideTxt = document.querySelector(".guide");
 const guideDim = document.querySelector(".dim");
+const isMobile = window.innerWidth < 769;
 
 const canvasParent = document.querySelector(".nudake");
 const canvas = document.querySelector(".nudake canvas");
@@ -71,13 +73,24 @@ function drawImg() {
 
 function onMouseDown(e) {
   if (isChanging) return;
-  window.addEventListener("mouseup", onMouseUp);
-  window.addEventListener("mousemove", onMouseMove);
+  if (isMobile) {
+    window.addEventListener("touchend", onMouseUp, { once: true });
+    window.addEventListener("touchmove", onMouseMove);
+  } else {
+    window.addEventListener("mouseup", onMouseUp);
+    window.addEventListener("mousemove", onMouseMove);
+  }
+
   prevPos = { x: e.clientX, y: e.clientY };
 }
 function onMouseUp() {
-  window.removeEventListener("mouseup", onMouseUp);
-  window.removeEventListener("mousemove", onMouseMove);
+  if (isMobile) {
+    window.removeEventListener("touchend", onMouseUp);
+    window.removeEventListener("touchmove", onMouseMove);
+  } else {
+    window.removeEventListener("mouseup", onMouseUp);
+    window.removeEventListener("mousemove", onMouseMove);
+  }
 }
 function onMouseMove(e) {
   if (isChanging) return;
@@ -121,7 +134,6 @@ function render() {
 window.addEventListener("load", () => {
   const progressBar = document.querySelector(".progress-bar");
   const progressGage = progressBar.querySelector(".gage");
-  const isMobile = window.innerWidth < 769;
 
   init();
 
@@ -142,7 +154,11 @@ window.addEventListener("load", () => {
     const opacityPercentage = Math.round(canvasParent.style.opacity * 100);
     progressGage.style.width = `${opacityPercentage}%`;
     if (opacityPercentage === 100) {
-      window.addEventListener("mousedown", onMouseDown);
+      if (isMobile) {
+        return window.addEventListener("touchstart", onMouseDown);
+      } else {
+        window.addEventListener("mousedown", onMouseDown);
+      }
     }
   }
   function completeAnimation() {
@@ -151,6 +167,7 @@ window.addEventListener("load", () => {
       duration: 0.5,
       onComplete: () => {
         gsap.to(guideTxt, { opacity: 1, duration: 1 });
+        guideAnimation();
       },
     });
     render();
