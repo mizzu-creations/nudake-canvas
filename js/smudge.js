@@ -14,6 +14,7 @@ const imgs = Array.from(
   { length: 8 },
   (_, i) => `./images/canvas/${i + 1}.jpg`
 );
+const loadedImgs = [];
 
 let canvasWidth, canvasHeight;
 let currentIdx = 0;
@@ -27,21 +28,33 @@ function init() {
   canvas.style.width = `${canvasWidth}px`;
   canvas.style.height = `${canvasHeight}px`;
 
-  drawImg();
+  preloadImages().then(() => drawImg());
+}
+
+function preloadImages() {
+  return new Promise((resolve, _) => {
+    let loaded = 0;
+    imgs.forEach((src) => {
+      const img = new Image();
+      img.src = src;
+      img.onload = () => {
+        loaded += 1;
+        loadedImgs.push(img);
+        if (loaded === imgs.length) return resolve();
+      };
+    });
+  });
 }
 
 function drawImg() {
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
-  const img = new Image();
-  img.src = imgs[currentIdx];
+  const img = loadedImgs[currentIdx];
 
-  img.onload = () => {
-    ctx.globalCompositeOperation = "source-over";
-    drawImageCenter(canvas, ctx, img);
+  ctx.globalCompositeOperation = "source-over";
+  drawImageCenter(canvas, ctx, img);
 
-    const nextImage = imgs[(currentIdx + 1) % imgs.length];
-    canvasParent.style.backgroundImage = `url(${nextImage})`;
-  };
+  const nextImage = imgs[(currentIdx + 1) % imgs.length];
+  canvasParent.style.backgroundImage = `url(${nextImage})`;
 }
 
 function onMouseDown(e) {
