@@ -25,4 +25,30 @@ function getScrupedPercent(ctx, width, height) {
   return Math.round((count / total) * 100);
 }
 
-export { getDistance, getAngle, getScrupedPercent };
+function drawImageCenter(canvas, ctx, image) {
+  const cw = canvas.width;
+  const ch = canvas.height;
+
+  const iw = image.width;
+  const ih = image.height;
+
+  const ir = ih / iw;
+  const cr = ch / cw;
+
+  let sx, sy, sw, sh;
+
+  if (ir >= cr) {
+    sw = iw;
+    sh = sw * (ch / cw);
+  } else {
+    sw = ih;
+    sh = sh * (cw / ch);
+  }
+
+  sx = iw / 2 - sw / 2;
+  sy = ih / 2 - sh / 2;
+
+  ctx.drawImage(image, sx, sy, sw, sh, 0, 0, cw, ch);
+}
+
+export { getDistance, getAngle, getScrupedPercent, drawImageCenter };

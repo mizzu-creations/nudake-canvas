@@ -1,7 +1,13 @@
-import { getDistance, getAngle, getScrupedPercent } from "./utils.js";
+import {
+  getDistance,
+  getAngle,
+  getScrupedPercent,
+  drawImageCenter,
+} from "./utils.js";
 
 const guideTxt = document.querySelector(".guide");
 
+const canvasParent = document.querySelector(".nudake");
 const canvas = document.querySelector(".nudake canvas");
 const ctx = canvas.getContext("2d", { willReadFrequently: true });
 const imgs = Array.from(
@@ -30,7 +36,11 @@ function drawImg() {
   img.src = imgs[currentIdx];
 
   img.onload = () => {
-    ctx.drawImage(img, 0, 0, canvasWidth, canvasHeight);
+    ctx.globalCompositeOperation = "source-over";
+    drawImageCenter(canvas, ctx, img);
+
+    const nextImage = imgs[(currentIdx + 1) % imgs.length];
+    canvasParent.style.backgroundImage = `url(${nextImage})`;
   };
 }
 
@@ -60,7 +70,7 @@ function drawCircles(e) {
 
     ctx.globalCompositeOperation = "destination-out";
     ctx.beginPath();
-    ctx.arc(x, y, 50, 0, Math.PI * 2);
+    ctx.arc(x, y, canvasWidth / 15, 0, Math.PI * 2);
     ctx.fill();
     ctx.closePath();
   }
@@ -69,6 +79,10 @@ function drawCircles(e) {
 }
 const checkPercent = _.throttle(() => {
   const percent = getScrupedPercent(ctx, canvasWidth, canvasHeight);
+  if (percent > 50) {
+    currentIdx = (currentIdx + 1) % imgs.length;
+    drawImg();
+  }
 }, 500);
 
 function render() {
