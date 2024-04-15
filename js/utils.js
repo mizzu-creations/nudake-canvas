@@ -14,6 +14,7 @@ function getAngle(p1, p2) {
 
 function getScrupedPercent(ctx, width, height) {
   const pixels = ctx.getImageData(0, 0, width, height);
+  console.log(pixels);
   const gap = 32;
   const total = pixels.data.length / gap;
   let count = 0;
@@ -21,7 +22,7 @@ function getScrupedPercent(ctx, width, height) {
   for (let i = 0; i < pixels.data.length - 3; i += gap) {
     if (pixels.data[i + 3] === 0) count++;
   }
-
+  console.log(count, total);
   return Math.round((count / total) * 100);
 }
 

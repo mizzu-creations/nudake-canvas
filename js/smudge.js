@@ -74,14 +74,17 @@ function drawImg() {
 function onMouseDown(e) {
   if (isChanging) return;
   if (isMobile) {
-    window.addEventListener("touchend", onMouseUp, { once: true });
+    window.addEventListener("touchend", onMouseUp);
     window.addEventListener("touchmove", onMouseMove);
   } else {
     window.addEventListener("mouseup", onMouseUp);
     window.addEventListener("mousemove", onMouseMove);
   }
 
-  prevPos = { x: e.clientX, y: e.clientY };
+  prevPos = {
+    x: isMobile ? e.changedTouches[0].clientX : e.clientX,
+    y: isMobile ? e.changedTouches[0].clientY : e.clientY,
+  };
 }
 function onMouseUp() {
   if (isMobile) {
@@ -101,7 +104,10 @@ function onMouseMove(e) {
 }
 
 function drawCircles(e) {
-  const nextPos = { x: e.clientX, y: e.clientY };
+  const nextPos = {
+    x: isMobile ? e.changedTouches[0].clientX : e.clientX,
+    y: isMobile ? e.changedTouches[0].clientY : e.clientY,
+  };
   if (!prevPos) prevPos = nextPos;
   const dist = getDistance(prevPos, nextPos);
   const angle = getAngle(prevPos, nextPos);
@@ -112,20 +118,21 @@ function drawCircles(e) {
 
     ctx.globalCompositeOperation = "destination-out";
     ctx.beginPath();
-    ctx.arc(x, y, canvasWidth / 15, 0, Math.PI * 2);
+    ctx.arc(x, y, 1, 0, Math.PI * 2);
     ctx.fill();
     ctx.closePath();
   }
 
   prevPos = nextPos;
 }
-const checkPercent = _.throttle(() => {
+const checkPercent = () => {
   const percent = getScrupedPercent(ctx, canvasWidth, canvasHeight);
+  console.log(percent);
   if (percent > 50) {
     currentIdx = (currentIdx + 1) % imgs.length;
     drawImg();
   }
-}, 500);
+};
 
 function render() {
   requestAnimationFrame(render);
@@ -155,7 +162,7 @@ window.addEventListener("load", () => {
     progressGage.style.width = `${opacityPercentage}%`;
     if (opacityPercentage === 100) {
       if (isMobile) {
-        return window.addEventListener("touchstart", onMouseDown);
+        window.addEventListener("touchstart", onMouseDown);
       } else {
         window.addEventListener("mousedown", onMouseDown);
       }
