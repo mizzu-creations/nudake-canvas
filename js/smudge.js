@@ -50,7 +50,6 @@ function drawImg() {
   isChanging = true;
   const img = loadedImgs[currentIdx];
   const firstDrawing = ctx.globalCompositeOperation === "source-over";
-
   gsap.to(canvas, {
     opacity: 0,
     duration: firstDrawing ? 0 : 1,
@@ -116,11 +115,43 @@ function render() {
   requestAnimationFrame(render);
 }
 
-window.addEventListener("mousedown", onMouseDown);
-
 window.addEventListener("load", () => {
+  const progressBar = document.querySelector(".progress-bar");
+  const progressGage = progressBar.querySelector(".gage");
+  const isMobile = window.innerWidth < 769;
+
   init();
-  render();
+
+  gsap.to(progressBar, {
+    width: isMobile ? 139 : 248,
+    duration: 0.5,
+    transformOrigin: "100% 50%",
+  });
+  gsap.to(canvasParent, {
+    opacity: 1,
+    delay: 0.5,
+    duration: 2,
+    onUpdate: updateProgress,
+    onComplete: completeAnimation,
+  });
+
+  function updateProgress() {
+    const opacityPercentage = Math.round(canvasParent.style.opacity * 100);
+    progressGage.style.width = `${opacityPercentage}%`;
+    if (opacityPercentage === 100) {
+      window.addEventListener("mousedown", onMouseDown);
+    }
+  }
+  function completeAnimation() {
+    gsap.to(progressBar, {
+      opacity: 0,
+      duration: 0.5,
+      onComplete: () => {
+        guideTxt.style.opacity = 1;
+      },
+    });
+    render();
+  }
 });
 window.addEventListener("resize", () => {
   init();
