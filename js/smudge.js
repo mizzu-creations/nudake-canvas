@@ -11,6 +11,9 @@ const guideTxt = document.querySelector(".guide");
 const guideDim = document.querySelector(".dim");
 const guideAni = guideAnimation();
 
+const progressBar = document.querySelector(".progress-bar");
+const progressGage = progressBar.querySelector(".gage");
+
 const canvas = document.querySelector("canvas");
 const canvasParent = canvas.parentNode;
 const ctx = canvas.getContext("2d", { willReadFrequently: true });
@@ -36,7 +39,10 @@ function init() {
   canvas.style.height = `${canvasHeight}px`;
 
   isMobile = isMobileDevice();
-  preloadImages().then(() => drawImg());
+  preloadImages().then(() => {
+    drawImg();
+    updateProgress();
+  });
 }
 
 function preloadImages() {
@@ -75,6 +81,23 @@ function drawImg() {
   });
 }
 
+function addEventListeners() {
+  if (isMobile) {
+    window.addEventListener("touchstart", onMouseDown);
+  } else {
+    window.addEventListener("mousedown", onMouseDown);
+  }
+}
+
+function updateProgress() {
+  const opacityPercentage = Math.round(canvasParent.style.opacity * 100);
+  progressGage.style.width = `${opacityPercentage}%`;
+
+  if (opacityPercentage === 100) {
+    addEventListeners();
+  }
+}
+
 function onMouseDown(e) {
   if (isChanging) return;
   if (isMobile) {
@@ -82,6 +105,7 @@ function onMouseDown(e) {
     window.addEventListener("touchmove", onMouseMove);
   } else {
     window.addEventListener("mouseup", onMouseUp);
+    window.addEventListener("mouseleave", onMouseUp);
     window.addEventListener("mousemove", onMouseMove);
   }
 
@@ -96,6 +120,7 @@ function onMouseUp() {
     window.removeEventListener("touchmove", onMouseMove);
   } else {
     window.removeEventListener("mouseup", onMouseUp);
+    window.removeEventListener("mouseleave", onMouseUp);
     window.removeEventListener("mousemove", onMouseMove);
   }
 }
@@ -139,8 +164,6 @@ const checkPercent = _.throttle(() => {
 }, 500);
 
 window.addEventListener("load", () => {
-  const progressBar = document.querySelector(".progress-bar");
-  const progressGage = progressBar.querySelector(".gage");
   const isMobileSize = window.innerWidth < 769;
 
   init();
@@ -157,18 +180,6 @@ window.addEventListener("load", () => {
     onUpdate: updateProgress,
     onComplete: completeAnimation,
   });
-
-  function updateProgress() {
-    const opacityPercentage = Math.round(canvasParent.style.opacity * 100);
-    progressGage.style.width = `${opacityPercentage}%`;
-    if (opacityPercentage === 100) {
-      if (isMobile) {
-        window.addEventListener("touchstart", onMouseDown);
-      } else {
-        window.addEventListener("mousedown", onMouseDown);
-      }
-    }
-  }
   function completeAnimation() {
     gsap.to(progressBar, {
       opacity: 0,

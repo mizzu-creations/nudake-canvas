@@ -2,7 +2,6 @@
 
 html {
   font-size: 10px;
-  touch-action: none;
 }
 
 body {
@@ -143,7 +142,6 @@ span {
     opacity: 0;
     canvas {
       position: absolute;
-      touch-action: none;
     }
   }
 }
