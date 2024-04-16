@@ -3,15 +3,16 @@ import {
   getAngle,
   getScrupedPercent,
   drawImageCenter,
+  isMobileDevice,
 } from "./utils.js";
 import { guideAnimation } from "./guideAnimation.js";
 
 const guideTxt = document.querySelector(".guide");
 const guideDim = document.querySelector(".dim");
-const isMobile = window.innerWidth < 769;
+const guideAni = guideAnimation();
 
-const canvasParent = document.querySelector(".nudake");
-const canvas = document.querySelector(".nudake canvas");
+const canvas = document.querySelector("canvas");
+const canvasParent = canvas.parentNode;
 const ctx = canvas.getContext("2d", { willReadFrequently: true });
 const imgs = Array.from(
   { length: 8 },
@@ -24,14 +25,17 @@ let canvasWidth, canvasHeight;
 let currentIdx = 0;
 let prevPos = { x: 0, y: 0 };
 let isChanging = false;
+let isMobile;
 
 function init() {
-  canvasWidth = innerWidth;
-  canvasHeight = innerHeight;
+  canvasWidth = canvasParent.clientWidth;
+  canvasHeight = canvasParent.clientHeight;
   canvas.width = canvasWidth;
   canvas.height = canvasHeight;
   canvas.style.width = `${canvasWidth}px`;
   canvas.style.height = `${canvasHeight}px`;
+
+  isMobile = isMobileDevice();
   preloadImages().then(() => drawImg());
 }
 
@@ -101,6 +105,7 @@ function onMouseMove(e) {
   checkPercent();
   gsap.to(guideTxt, { opacity: 0, duration: 1 });
   gsap.to(guideDim, { opacity: 0, duration: 1 });
+  guideAni.kill();
 }
 
 function drawCircles(e) {
@@ -118,34 +123,30 @@ function drawCircles(e) {
 
     ctx.globalCompositeOperation = "destination-out";
     ctx.beginPath();
-    ctx.arc(x, y, 1, 0, Math.PI * 2);
+    ctx.arc(x, y, canvasWidth / 15, 0, Math.PI * 2);
     ctx.fill();
     ctx.closePath();
   }
 
   prevPos = nextPos;
 }
-const checkPercent = () => {
+const checkPercent = _.throttle(() => {
   const percent = getScrupedPercent(ctx, canvasWidth, canvasHeight);
-  console.log(percent);
   if (percent > 50) {
     currentIdx = (currentIdx + 1) % imgs.length;
     drawImg();
   }
-};
-
-function render() {
-  requestAnimationFrame(render);
-}
+}, 500);
 
 window.addEventListener("load", () => {
   const progressBar = document.querySelector(".progress-bar");
   const progressGage = progressBar.querySelector(".gage");
+  const isMobileSize = window.innerWidth < 769;
 
   init();
 
   gsap.to(progressBar, {
-    width: isMobile ? 139 : 248,
+    width: isMobileSize ? 139 : 248,
     duration: 0.5,
     transformOrigin: "100% 50%",
   });
@@ -174,12 +175,14 @@ window.addEventListener("load", () => {
       duration: 0.5,
       onComplete: () => {
         gsap.to(guideTxt, { opacity: 1, duration: 1 });
-        guideAnimation();
+        guideAni;
       },
     });
-    render();
   }
 });
-window.addEventListener("resize", () => {
-  init();
-});
+window.addEventListener(
+  "resize",
+  _.throttle(() => {
+    location.reload();
+  }, 1000)
+);

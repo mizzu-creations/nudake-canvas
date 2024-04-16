@@ -13,16 +13,13 @@ function getAngle(p1, p2) {
 }
 
 function getScrupedPercent(ctx, width, height) {
-  const pixels = ctx.getImageData(0, 0, width, height);
-  console.log(pixels);
+  const pixels = ctx.getImageData(0, 0, width, height).data;
   const gap = 32;
-  const total = pixels.data.length / gap;
+  const total = pixels.length / gap;
   let count = 0;
-
-  for (let i = 0; i < pixels.data.length - 3; i += gap) {
-    if (pixels.data[i + 3] === 0) count++;
+  for (let i = 0; i < pixels.length - 3; i += gap) {
+    if (pixels[i + 3] === 0) count++;
   }
-  console.log(count, total);
   return Math.round((count / total) * 100);
 }
 
@@ -42,8 +39,8 @@ function drawImageCenter(canvas, ctx, image) {
     sw = iw;
     sh = sw * (ch / cw);
   } else {
-    sw = ih;
-    sh = sh * (cw / ch);
+    sh = ih;
+    sw = sh * (cw / ch);
   }
 
   sx = iw / 2 - sw / 2;
@@ -51,4 +48,18 @@ function drawImageCenter(canvas, ctx, image) {
   ctx.drawImage(image, sx, sy, sw, sh, 0, 0, cw, ch);
 }
 
-export { getDistance, getAngle, getScrupedPercent, drawImageCenter };
+function isMobileDevice() {
+  const userAgent = navigator.userAgent;
+  const mobile = /(iPhone|iPad|Android|BlackBerry|Windows Phone)/i.test(
+    userAgent
+  );
+  return mobile;
+}
+
+export {
+  getDistance,
+  getAngle,
+  getScrupedPercent,
+  drawImageCenter,
+  isMobileDevice,
+};
