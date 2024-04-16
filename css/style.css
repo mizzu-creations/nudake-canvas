@@ -2,11 +2,14 @@
 
 html {
   font-size: 10px;
+  touch-action: none;
 }
 
 body {
   background-color: #000;
   user-select: none;
+  overflow: hidden;
+  touch-action: none;
 }
 
 span {
