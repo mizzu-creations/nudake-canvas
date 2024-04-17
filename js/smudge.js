@@ -7,9 +7,13 @@ import {
 } from "./utils.js";
 import { guideAnimation } from "./guideAnimation.js";
 
+const userAgt = navigator.userAgent.toLowerCase();
 const target_url = "https://nudake-canvas.vercel.app/";
-location.href =
-  "kakaotalk://web/openExternal?url=" + encodeURIComponent(target_url);
+
+if (userAgt.match(/kakaotalk/i)) {
+  location.href =
+    "kakaotalk://web/openExternal?url=" + encodeURIComponent(target_url);
+}
 
 const guideTxt = document.querySelector(".guide");
 const guideDim = document.querySelector(".dim");
