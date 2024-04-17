@@ -4,9 +4,12 @@ import {
   getScrupedPercent,
   drawImageCenter,
   isMobileDevice,
-  setVh,
 } from "./utils.js";
 import { guideAnimation } from "./guideAnimation.js";
+
+const target_url = "https://nudake-canvas.vercel.app/";
+location.href =
+  "kakaotalk://web/openExternal?url=" + encodeURIComponent(target_url);
 
 const guideTxt = document.querySelector(".guide");
 const guideDim = document.querySelector(".dim");
@@ -166,7 +169,6 @@ const checkPercent = _.throttle(() => {
 window.addEventListener("load", () => {
   const isMobileSize = window.innerWidth < 769;
 
-  setVh();
   init();
 
   gsap.to(progressBar, {
