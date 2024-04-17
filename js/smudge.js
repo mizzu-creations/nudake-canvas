@@ -5,15 +5,8 @@ import {
   drawImageCenter,
   isMobileDevice,
 } from "./utils.js";
+import { goToExternalBrowser } from "./replaceInAppBrowser.js";
 import { guideAnimation } from "./guideAnimation.js";
-
-const userAgt = navigator.userAgent.toLowerCase();
-const target_url = "https://nudake-canvas.vercel.app/";
-
-if (userAgt.match(/kakaotalk/i)) {
-  location.href =
-    "kakaotalk://web/openExternal?url=" + encodeURIComponent(target_url);
-}
 
 const guideTxt = document.querySelector(".guide");
 const guideDim = document.querySelector(".dim");
@@ -38,7 +31,22 @@ let prevPos = { x: 0, y: 0 };
 let isChanging = false;
 let isMobile;
 
-function init() {
+function preloadImages() {
+  return Promise.all(
+    imgs.map((src) => {
+      return new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve(img);
+        img.onerror = reject;
+        img.src = src;
+      });
+    })
+  ).then((images) => {
+    loadedImgs.push(...images);
+  });
+}
+
+async function init() {
   canvasWidth = canvasParent.clientWidth;
   canvasHeight = canvasParent.clientHeight;
   canvas.width = canvasWidth;
@@ -47,25 +55,9 @@ function init() {
   canvas.style.height = `${canvasHeight}px`;
 
   isMobile = isMobileDevice();
-  preloadImages().then(() => {
-    drawImg();
-    updateProgress();
-  });
-}
-
-function preloadImages() {
-  return new Promise((resolve, _) => {
-    let loaded = 0;
-    imgs.forEach((src) => {
-      const img = new Image();
-      img.src = src;
-      img.onload = () => {
-        loaded += 1;
-        loadedImgs.push(img);
-        if (loaded === imgs.length) return resolve();
-      };
-    });
-  });
+  await preloadImages();
+  drawImg();
+  updateProgress();
 }
 
 function drawImg() {
@@ -173,6 +165,7 @@ const checkPercent = _.throttle(() => {
 window.addEventListener("load", () => {
   const isMobileSize = window.innerWidth < 769;
 
+  goToExternalBrowser();
   init();
 
   gsap.to(progressBar, {
