@@ -4,6 +4,7 @@ import {
   getScrupedPercent,
   drawImageCenter,
   isMobileDevice,
+  setVh,
 } from "./utils.js";
 import { guideAnimation } from "./guideAnimation.js";
 
@@ -71,7 +72,6 @@ function drawImg() {
       canvas.style.opacity = 1;
       ctx.globalCompositeOperation = "source-over";
       drawImageCenter(canvas, ctx, img);
-
       const nextImage = imgs[(currentIdx + 1) % imgs.length];
       canvasParent.style.backgroundImage = `url(${nextImage})`;
       prevPos = null;
@@ -161,11 +161,12 @@ const checkPercent = _.throttle(() => {
     currentIdx = (currentIdx + 1) % imgs.length;
     drawImg();
   }
-}, 500);
+}, 1000);
 
 window.addEventListener("load", () => {
   const isMobileSize = window.innerWidth < 769;
 
+  setVh();
   init();
 
   gsap.to(progressBar, {
@@ -195,5 +196,5 @@ window.addEventListener(
   "resize",
   _.throttle(() => {
     location.reload();
-  }, 1000)
+  }, 2000)
 );

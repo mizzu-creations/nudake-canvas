@@ -56,10 +56,16 @@ function isMobileDevice() {
   return mobile;
 }
 
+function setVh() {
+  let vh = window.innerHeight * 0.01;
+  document.documentElement.style.setProperty("--vh", `${vh}px`);
+}
+
 export {
   getDistance,
   getAngle,
   getScrupedPercent,
   drawImageCenter,
   isMobileDevice,
+  setVh,
 };
